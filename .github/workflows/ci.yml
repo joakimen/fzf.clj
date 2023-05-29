@@ -1,0 +1,46 @@
+name: Tests
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v3"
+
+      - name: "Setup Java"
+        uses: "actions/setup-java@v3"
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: "Setup Clojure"
+        uses: "DeLaGuardo/setup-clojure@master"
+        with:
+          cli: "latest"
+          bb: "latest"
+
+      - name: "Apply Cache"
+        uses: "actions/cache@v3"
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.gitlibs
+          key: "fzf-clj-${{ hashFiles('deps.edn') }}"
+          restore-keys: "$fzf-clj-"
+
+      - name: "Lint code"
+        uses: DeLaGuardo/clojure-lint-action@master
+        with:
+          clj-kondo-args: --lint .
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Run JVM tests"
+        run: "bb test:jvm"
+
+      - name: "Run bb tests"
+        run: "bb test:bb"
