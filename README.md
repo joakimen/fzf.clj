@@ -55,7 +55,7 @@ Add the following to your `bb.edn` or `deps.edn`:
 
 [fzf](https://github.com/junegunn/fzf) supports a slew of options, so I have only included the ones I frequently use myself.
 
-For all available options, see [core.clj]("src/fzf/core.clj")
+For all available options, see [core.clj](src/fzf/core.clj)
 
 ### Note on REPL-usage
 
