@@ -4,6 +4,8 @@
 
 A small wrapper around [fzf](https://github.com/junegunn/fzf).
 
+Intended to be used in scripts in which the user wants to select one or more items from a selection using fuzzy-completion.
+
 ## Requirements
 
 - [fzf](https://github.com/junegunn/fzf)
