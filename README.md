@@ -16,7 +16,7 @@ Intended to be used in scripts in which the user wants to select one or more ite
 Add the following to your `bb.edn` or `deps.edn`:
 
 ```edn
-{:deps {io.github.joakimen/fzf.clj {:git/sha "67e81183fc82b7153a58cf056ad8349286e7ec8e"}}}
+{:deps {io.github.joakimen/fzf.clj {:git/sha "f42b1858afbb280d851a0dd306e1aecc781a9876"}}}
 ```
 
 ### Example usage
