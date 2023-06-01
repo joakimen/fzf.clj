@@ -7,8 +7,13 @@
     (t/is (= {:cmd ["fzf"], :opts {:in :inherit, :out :string, :err :inherit}}
              (i/parse-opts))))
   (t/testing "adding fzf flags produce correct command string"
-    (t/is (= ["fzf" "--multi" "--reverse" "--preview" "echo {}"]
-             (:cmd (i/parse-opts {:multi true :reverse true :preview "echo {}"})))))
+    (t/is (= ["fzf" "--multi" "--reverse" "--tac" "-i" "--exact" "--preview" "echo {}"]
+             (:cmd (i/parse-opts {:multi true
+                                  :reverse true
+                                  :tac true
+                                  :case-insensitive true
+                                  :exact true
+                                  :preview "echo {}"})))))
   (t/testing "providing input-arguments maps them to process stdin"
     (t/is (= {:in "one\ntwo\nthree", :out :string, :err :inherit}
              (:opts (i/parse-opts {:in ["one" "two" "three"]}))))

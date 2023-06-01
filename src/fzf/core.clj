@@ -6,11 +6,14 @@
   "Public interface to fzf.
    
    Options map (all keys are optional):
-   in: Vec of args passed as input to fzf as stdin
-   dir: String indicating the startup-dir of the fzf-command
-   multi: Bool, that toggles multi-select in fzf. If true, fzf returns a vector instead of string
-   preview: String, contains a preview-command passed to fzf
-   reverse: Bool, reverses the order of the fzf input dialogue
+   - in: Vec of args passed as input to fzf as stdin
+   - dir: String indicating the startup-dir of the fzf-command
+   - multi: Bool, toggles multi-select in fzf. If true, fzf returns a vector instead of string
+   - preview: String, preview-command for the currently selected item
+   - reverse: Bool, reverse the order of the fzf input dialogue
+   - tac: Bool, reverse the order of the input
+   - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
+   - exact: Bool, toggle exact search (default: fuzzy)
    
    Examples:
 
@@ -21,7 +24,7 @@
         :reverse true) ;; => [\"one\" \"two\"]
    
    Returns:
-   - on success with :multi = false: the selected item as string
+   - on success with :multi = false (default): the selected item as string
    - on success with :multi = true: the selected item(s) as vector of strings
    - on error or ctrl-c: nil"
   ([] (i/fzf))

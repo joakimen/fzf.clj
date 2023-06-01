@@ -8,10 +8,13 @@
   "Parse fzf and process options"
   ([] (parse-opts {}))
   ([opts]
-   (let [{:keys [in dir multi preview reverse]} opts]
+   (let [{:keys [in dir multi preview tac case-insensitive exact reverse]} opts]
      {:cmd (cond-> ["fzf"]
              multi (conj "--multi")
              reverse (conj "--reverse")
+             tac (conj "--tac")
+             case-insensitive (conj "-i")
+             exact (conj "--exact")
              preview (conj "--preview" preview))
       :opts (cond-> {:in :inherit
                      :out :string
