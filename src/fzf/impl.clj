@@ -8,14 +8,18 @@
   "Parse fzf and process options"
   ([] (parse-opts {}))
   ([opts]
-   (let [{:keys [in dir multi preview tac case-insensitive exact reverse]} opts]
+   (let [{:keys [in dir multi preview tac case-insensitive exact reverse]
+          {:keys [header-str header-lines header-first]} :header} opts]
      {:cmd (cond-> ["fzf"]
              multi (conj "--multi")
              reverse (conj "--reverse")
              tac (conj "--tac")
              case-insensitive (conj "-i")
              exact (conj "--exact")
-             preview (conj "--preview" preview))
+             preview (conj "--preview" preview)
+             header-str (conj "--header" header-str)
+             header-lines (conj "--header-lines" header-lines)
+             header-first (conj "--header-first"))
       :opts (cond-> {:in :inherit
                      :out :string
                      :err :inherit}

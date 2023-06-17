@@ -11,6 +11,10 @@
    - multi: Bool, toggles multi-select in fzf. If true, fzf returns a vector instead of string
    - preview: String, preview-command for the currently selected item
    - reverse: Bool, reverse the order of the fzf input dialogue
+   - header: Map with sticky-header options for the fzf input dialogue
+     - header-str: String, header-text
+     - header-lines: Int, number of header-lines treated as sticky-header
+     - header-first: Bool, print header before the prompt line
    - tac: Bool, reverse the order of the input
    - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
    - exact: Bool, toggle exact search (default: fuzzy)
