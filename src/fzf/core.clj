@@ -15,6 +15,7 @@
      - header-str: String, header-text
      - header-lines: Int, number of header-lines treated as sticky-header
      - header-first: Bool, print header before the prompt line
+   - height: String, height of the fzf input dialogue
    - tac: Bool, reverse the order of the input
    - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
    - exact: Bool, toggle exact search (default: fuzzy)
