@@ -1,6 +1,7 @@
 (ns fzf.core
   "Public interface to the fzf-wrapper"
-  (:require [fzf.impl :as i]))
+  (:require [fzf.impl :as i]
+            [clojure.spec.alpha :as s]))
 
 (defn fzf
   "Public interface to fzf.
@@ -33,4 +34,6 @@
    - on success with :multi = true: the selected item(s) as vector of strings
    - on error or ctrl-c: nil"
   ([] (i/fzf))
-  ([opts] (i/fzf opts)))
+  ([opts]
+   {:pre [(s/valid? :fzf/opts opts)]}
+   (i/fzf opts)))
