@@ -33,3 +33,6 @@
             :fzf/tac
             :fzf/case-insensitive
             :fzf/exact]))
+
+(s/def :fzf/args
+  (s/coll-of string?))
