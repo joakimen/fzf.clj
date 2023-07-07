@@ -102,4 +102,3 @@ Connect to the REPL Server in VS Code
 Copyright © 2023- Joakim L. Engeset
 
 Distributed under the MIT License. See LICENSE.
-lala
