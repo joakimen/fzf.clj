@@ -45,10 +45,28 @@ Add the following to your `bb.edn` or `deps.edn`:
 
 #### Passing data to stdin
 
+> :bulb: Since `v0.0.2`, input-arguments have been moved from the `in`-key in the options map to its own argument to facilitate threading.
+
+To provide input arguments to fzf via STDIN instead of using the default file selection command, the arguments can be passed as a vector of strings.
+
 ```clojure
-(fzf {:in ["one" "two" "three"]})
+(fzf ["one" "two" "three"])
 ;; user selects an item
 "two"
+```
+
+Threading
+
+```clojure
+(->> ["quick" "brown" "fox"] fzf) ;; => fox
+```
+
+Threading w/options
+
+```clojure
+(->> ["quick" "brown" "fox"]
+     (map upper-case)
+     (fzf {:multi true})) ;; => ["QUICK" "FOX"]
 ```
 
 ### Available options

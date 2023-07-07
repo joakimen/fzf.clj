@@ -1,13 +1,12 @@
 (ns fzf.core
   "Public interface to the fzf-wrapper"
-  (:require [fzf.impl :as i]
-            [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [fzf.impl :as i]))
 
 (defn fzf
   "Public interface to fzf.
    
-   Options map (all keys are optional):
-   - in: Vec of args passed as input to fzf as stdin
+   `opts`: Options map (all keys are optional)
    - dir: String indicating the startup-dir of the fzf-command
    - multi: Bool, toggles multi-select in fzf. If true, fzf returns a vector instead of string
    - preview: String, preview-command for the currently selected item
@@ -20,20 +19,33 @@
    - tac: Bool, reverse the order of the input
    - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
    - exact: Bool, toggle exact search (default: fuzzy)
+
+   `args`: Input arguments to fzf (optional, list of strings)
    
    Examples:
 
    (fzf) ;; => \"myfile.txt\"
 
-   (fzf :multi true 
-        :in [\"one\" \"two\" \"three\"] 
-        :reverse true) ;; => [\"one\" \"two\"]
-   
+   (->> [\"quick\" \"brown\" \"fox\"]
+       (map clojure.string/upper-case)
+       fzf) ;; => \"FOX\"
+
+
+   (fzf {:multi true
+         :reverse true}
+       [\"one \" \"two \" \"three \"]) ;; => [\"one\" \"two\"] 
+     
+
    Returns:
    - on success with :multi = false (default): the selected item as string
    - on success with :multi = true: the selected item(s) as vector of strings
    - on error or ctrl-c: nil"
-  ([] (i/fzf))
-  ([opts]
-   {:pre [(s/valid? :fzf/opts opts)]}
-   (i/fzf opts)))
+  ([] (fzf {} []))
+  ([opts-or-args]
+   (if (map? opts-or-args)
+     (fzf opts-or-args [])
+     (fzf {} opts-or-args)))
+  ([opts args]
+   {:pre [(s/and (s/valid? :fzf/opts opts)
+                 (s/valid? :fzf/args args))]}
+   (i/fzf opts args)))
