@@ -50,6 +50,8 @@
    - preview: String, preview-command for the currently selected item
    - preview-fn: Function, preview function that will be called on the currently selected item.
                  Its return value will be displayed in the preview window.
+                 :preview-fn cannot be used in combination with :preview, i.e.
+                 only one of them can be used for a single invocation of fzf.
    - reverse: Bool, reverse the order of the fzf input dialogue
    - header: Map with sticky-header options for the fzf input dialogue
      - header-str: String, header-text
@@ -85,7 +87,10 @@
    (if (map? opts-or-args)
      (fzf opts-or-args [])
      (fzf {} opts-or-args)))
-  ([opts args]
+  ([{:keys [preview preview-fn] :as opts} args]
    {:pre [(s/and (s/valid? :fzf/opts opts)
                  (s/valid? :fzf/args args))]}
+   (when (and (some? preview) (some? preview-fn))
+     (throw (ex-info "Both :preview and :preview-fn given. Only one must be used."
+                     (select-keys opts [:preview :preview-fn]))))
    (i/fzf opts args)))
