@@ -19,6 +19,11 @@
                                            :header-first true}
                                   :height "10%"}
                                  [])))))
+  (t/testing "adding :preview-fn produces command string with inline bb netcat script"
+    (t/is (= ["fzf" "--preview" (i/bbnc-preview-command 12345)]
+             (:cmd (i/parse-opts {:preview-fn (fn [_] "preview-fn")}
+                                 []
+                                 12345)))))
   (t/testing "providing input-arguments maps them to process stdin"
     (t/is (= {:in "one\ntwo\nthree", :out :string, :err :inherit}
              (:opts (i/parse-opts {} ["one" "two" "three"]))))

@@ -16,6 +16,7 @@
 (s/def :fzf/dir fs/directory?)
 (s/def :fzf/multi boolean?)
 (s/def :fzf/preview string?)
+(s/def :fzf/preview-fn fn?)
 
 (s/def :fzf/reverse boolean?)
 (s/def :fzf/height (s/and string? #(re-matches #"^~?\d+%?$" %)))
@@ -24,28 +25,34 @@
 (s/def :fzf/exact boolean?)
 
 (s/def :fzf/opts
-  (s/keys
-   :opt-un [:fzf/in
-            :fzf/dir
-            :fzf/multi
-            :fzf/preview
-            :fzf/reverse
-            :fzf/header
-            :fzf/height
-            :fzf/tac
-            :fzf/case-insensitive
-            :fzf/exact]))
+  (s/and  (s/keys
+           :opt-un [:fzf/in
+                    :fzf/dir
+                    :fzf/multi
+                    :fzf/preview
+                    :fzf/preview-fn
+                    :fzf/reverse
+                    :fzf/header
+                    :fzf/height
+                    :fzf/tac
+                    :fzf/case-insensitive
+                    :fzf/exact])
+          #(not (and (:preview %) (:preview-fn %)))))
 
 (s/def :fzf/args
   (s/coll-of string?))
 
 (defn fzf
   "Public interface to fzf.
-   
+
    `opts`: Options map (all keys are optional)
    - dir: String indicating the startup-dir of the fzf-command
    - multi: Bool, toggles multi-select in fzf. If true, fzf returns a vector instead of string
    - preview: String, preview-command for the currently selected item
+   - preview-fn: Function, preview function that will be called on the currently selected item.
+                 Its return value will be displayed in the preview window.
+                 :preview-fn cannot be used in combination with :preview, i.e.
+                 only one of them can be used for a single invocation of fzf.
    - reverse: Bool, reverse the order of the fzf input dialogue
    - header: Map with sticky-header options for the fzf input dialogue
      - header-str: String, header-text
@@ -57,7 +64,7 @@
    - exact: Bool, toggle exact search (default: fuzzy)
 
    `args`: Input arguments to fzf (optional, list of strings)
-   
+
    Examples:
 
    (fzf) ;; => \"myfile.txt\"
@@ -69,8 +76,8 @@
 
    (fzf {:multi true
          :reverse true}
-       [\"one \" \"two \" \"three \"]) ;; => [\"one\" \"two\"] 
-     
+       [\"one \" \"two \" \"three \"]) ;; => [\"one\" \"two\"]
+
 
    Returns:
    - on success with :multi = false (default): the selected item as string
@@ -82,6 +89,6 @@
      (fzf opts-or-args [])
      (fzf {} opts-or-args)))
   ([opts args]
-   {:pre [(s/and (s/valid? :fzf/opts opts)
-                 (s/valid? :fzf/args args))]}
+   {:pre [(and (s/valid? :fzf/opts opts)
+               (s/valid? :fzf/args args))]}
    (i/fzf opts args)))
