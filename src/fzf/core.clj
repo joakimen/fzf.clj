@@ -25,18 +25,19 @@
 (s/def :fzf/exact boolean?)
 
 (s/def :fzf/opts
-  (s/keys
-   :opt-un [:fzf/in
-            :fzf/dir
-            :fzf/multi
-            :fzf/preview
-            :fzf/preview-fn
-            :fzf/reverse
-            :fzf/header
-            :fzf/height
-            :fzf/tac
-            :fzf/case-insensitive
-            :fzf/exact]))
+  (s/and  (s/keys
+           :opt-un [:fzf/in
+                    :fzf/dir
+                    :fzf/multi
+                    :fzf/preview
+                    :fzf/preview-fn
+                    :fzf/reverse
+                    :fzf/header
+                    :fzf/height
+                    :fzf/tac
+                    :fzf/case-insensitive
+                    :fzf/exact])
+          #(not (and (:preview %) (:preview-fn %)))))
 
 (s/def :fzf/args
   (s/coll-of string?))
@@ -87,10 +88,7 @@
    (if (map? opts-or-args)
      (fzf opts-or-args [])
      (fzf {} opts-or-args)))
-  ([{:keys [preview preview-fn] :as opts} args]
-   {:pre [(s/and (s/valid? :fzf/opts opts)
-                 (s/valid? :fzf/args args))]}
-   (when (and (some? preview) (some? preview-fn))
-     (throw (ex-info "Both :preview and :preview-fn given. Only one must be used."
-                     (select-keys opts [:preview :preview-fn]))))
+  ([opts args]
+   {:pre [(and (s/valid? :fzf/opts opts)
+               (s/valid? :fzf/args args))]}
    (i/fzf opts args)))
