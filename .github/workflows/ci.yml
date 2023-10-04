@@ -23,6 +23,7 @@ jobs:
         with:
           cli: "latest"
           bb: "latest"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Apply Cache"
         uses: "actions/cache@v3"
