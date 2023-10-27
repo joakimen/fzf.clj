@@ -39,7 +39,7 @@
                     :fzf/exact])
           #(not (and (:preview %) (:preview-fn %)))))
 
-(s/def :fzf/args vector?)
+(s/def :fzf/args sequential?)
 
 (defn fzf
   "Public interface to fzf.
