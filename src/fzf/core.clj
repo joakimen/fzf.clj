@@ -39,8 +39,7 @@
                     :fzf/exact])
           #(not (and (:preview %) (:preview-fn %)))))
 
-(s/def :fzf/args
-  (s/coll-of string?))
+(s/def :fzf/args vector?)
 
 (defn fzf
   "Public interface to fzf.
@@ -92,3 +91,7 @@
    {:pre [(and (s/valid? :fzf/opts opts)
                (s/valid? :fzf/args args))]}
    (i/fzf opts args)))
+
+
+(comment
+  (s/valid? :fzf/opts {"a" "b"}))
