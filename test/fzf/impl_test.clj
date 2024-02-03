@@ -17,7 +17,8 @@
                                   :header {:header-str "header-text"
                                            :header-lines 2
                                            :header-first true}
-                                  :height "10%"}
+                                  :height "10%"
+                                  :throw true}
                                  [])))))
   (t/testing "adding :preview-fn produces command string with inline bb netcat script"
     (t/is (= ["fzf" "--preview" (i/bbnc-preview-command 12345)]

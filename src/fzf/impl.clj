@@ -90,9 +90,11 @@
                                      (start-preview-fn-server port-promise preview-fn)
                                      (ByteArrayOutputStream.))] ; any proper Closeable thing will do.
       (let [multi (:multi opts)
+            throw-on-nzec (:throw opts)
             {:keys [cmd opts]} (parse-opts opts args (when preview-fn @port-promise))
             {:keys [out exit]} @(p/process cmd opts)]
         (if (zero? exit)
           (cond-> (str/trim out)
-                  multi str/split-lines)
-          nil)))))
+            multi str/split-lines)
+          (if throw-on-nzec (throw (ex-info "No candidates were selected" {:babashka/exit 1}))
+              nil))))))

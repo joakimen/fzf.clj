@@ -23,6 +23,7 @@
 (s/def :fzf/tac boolean?)
 (s/def :fzf/case-insensitive boolean?)
 (s/def :fzf/exact boolean?)
+(s/def :fzf/throw boolean?)
 
 (s/def :fzf/opts
   (s/and  (s/keys
@@ -36,7 +37,8 @@
                     :fzf/height
                     :fzf/tac
                     :fzf/case-insensitive
-                    :fzf/exact])
+                    :fzf/exact
+                    :fzf/throw])
           #(not (and (:preview %) (:preview-fn %)))))
 
 (s/def :fzf/args sequential?)
@@ -61,6 +63,7 @@
    - tac: Bool, reverse the order of the input
    - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
    - exact: Bool, toggle exact search (default: fuzzy)
+   - throw: Bool, throw when no candidates were selected (default: return nil)
 
    `args`: Input arguments to fzf (optional, list of strings)
 
