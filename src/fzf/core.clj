@@ -91,7 +91,3 @@
    {:pre [(and (s/valid? :fzf/opts opts)
                (s/valid? :fzf/args args))]}
    (i/fzf opts args)))
-
-
-(comment
-  (s/valid? :fzf/opts {"a" "b"}))

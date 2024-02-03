@@ -43,8 +43,8 @@
       :opts (cond-> {:in :inherit
                      :out :string
                      :err :inherit}
-                    (not-empty args) (assoc :in (str/join "\n" args))
-                    dir (assoc :dir (-> dir fs/expand-home str)))})))
+              (not-empty args) (assoc :in (str/join "\n" args))
+              dir (assoc :dir (-> dir fs/expand-home str)))})))
 
 (defn start-preview-fn-server
   "Start the preview function server.
@@ -56,7 +56,7 @@
   invoking `preview-fn` with the selected item as the only argument."
   ^Closeable [port-promise preview-fn]
   (let [ss (doto
-             (ServerSocket.)
+            (ServerSocket.)
              (.bind (InetSocketAddress. "127.0.0.1" 0)))]
     (future
       (deliver port-promise (.getLocalPort ss))
