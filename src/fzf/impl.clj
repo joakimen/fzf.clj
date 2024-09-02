@@ -26,7 +26,7 @@
   ([opts args]
    (parse-opts opts args nil))
   ([opts args server-port]
-   (let [{:keys [dir multi preview-fn preview tac case-insensitive exact reverse height]
+   (let [{:keys [dir multi preview-fn preview tac case-insensitive exact reverse height select-1 query]
           {:keys [header-str header-lines header-first]} :header} opts]
      {:cmd (cond-> ["fzf"]
              multi (conj "--multi")
@@ -39,7 +39,9 @@
              header-str (conj "--header" header-str)
              header-lines (conj "--header-lines" header-lines)
              header-first (conj "--header-first")
-             height (conj "--height" height))
+             height (conj "--height" height)
+             select-1 (conj "--select-1")
+             query (conj "--query" query))
       :opts (cond-> {:in :inherit
                      :out :string
                      :err :inherit}
