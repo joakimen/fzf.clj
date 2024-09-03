@@ -38,7 +38,9 @@
                     :fzf/tac
                     :fzf/case-insensitive
                     :fzf/exact
-                    :fzf/throw])
+                    :fzf/throw
+                    :fzf/select-1
+                    :fzf/query])
           #(not (and (:preview %) (:preview-fn %)))))
 
 (s/def :fzf/args sequential?)
@@ -64,6 +66,8 @@
    - case-insensitive: Bool, toggle case-insensitive search (default: smart-case)
    - exact: Bool, toggle exact search (default: fuzzy)
    - throw: Bool, throw when no candidates were selected (default: return nil)
+   - select-1: Bool, automatically select if only one match
+   - query: String, start finder with the specified query
 
    `args`: Input arguments to fzf (optional, list of strings)
 

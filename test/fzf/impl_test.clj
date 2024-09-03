@@ -7,7 +7,7 @@
     (t/is (= {:cmd ["fzf"], :opts {:in :inherit, :out :string, :err :inherit}}
              (i/parse-opts {} []))))
   (t/testing "adding fzf flags produce correct command string"
-    (t/is (= ["fzf" "--multi" "--reverse" "--tac" "-i" "--exact" "--preview" "echo {}" "--header" "header-text" "--header-lines" 2 "--header-first" "--height" "10%"]
+    (t/is (= ["fzf" "--multi" "--reverse" "--tac" "-i" "--exact" "--preview" "echo {}" "--header" "header-text" "--header-lines" 2 "--header-first" "--height" "10%" "--select-1" "--query" "one"]
              (:cmd (i/parse-opts {:multi true
                                   :reverse true
                                   :tac true
@@ -18,7 +18,9 @@
                                            :header-lines 2
                                            :header-first true}
                                   :height "10%"
-                                  :throw true}
+                                  :throw true
+                                  :select-1 true
+                                  :query "one"}
                                  [])))))
   (t/testing "adding :preview-fn produces command string with inline bb netcat script"
     (t/is (= ["fzf" "--preview" (i/bbnc-preview-command 12345)]
