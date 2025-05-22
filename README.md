@@ -73,7 +73,37 @@ Threading w/options
 
 [fzf](https://github.com/junegunn/fzf) supports a slew of options, so I have only included the ones I frequently use myself.
 
-For all available options, see [core.clj](src/fzf/core.clj)
+Key features include:
+- The `:preview` string argument or a `:preview-fn (fn [selections])` that
+  receives a vector of all selected items (via fzf's `{+}`).
+- A key binding system offering:
+  - `:command-bindings`: Define complex, multi-step actions triggered by
+    key-chords. fzf actions generally take either a simple string argument
+    (e.g., `change-prompt(...)`, `change-header(...)`) or an external
+    command (e.g., `execute(...)`, `reload(...)`, `preview(...)`,
+    `transform(...)`). You can specify these arguments in your action maps
+    using:
+    - `:simple-arg`: For actions that take a direct string value (e.g.,
+      `{:action-name "change-prompt" :simple-arg "New>"}`).
+    - `:command-string`: For actions that execute a raw shell command (e.g.,
+      `{:action-name "execute" :command-string "less {}"}`).
+    - `:handler-fn`: For actions that execute a Clojure function, which is
+      wrapped into an executable shell command (e.g., `'(fn [lines] ...)`).
+      - **NOTE** The `:handler-fn` argument MUST be quoted (e.g., `'(fn [lines])`)
+      as it's passed as a string for external execution, unlike `:bbnc-reload-fn`.
+    - `:bbnc-reload-fn`: A special case for `reload` actions, allowing
+      in-process Clojure functions for dynamic updates that can access
+      application state (e.g., `(fn [current-query] ...)`).
+  - `:additional-bindings`: Use raw fzf binding strings for maximum
+    flexibility (escape hatch).
+  - This wrapper aims to support most of fzf's [available actions](https://man.archlinux.org/man/fzf.1.en#AVAILABLE_ACTIONS:).
+    Consult the fzf documentation to determine if a specific action expects a
+    simple string (typically use `:simple-arg`) or an external command
+    (typically use `:command-string` or `:handler-fn`).
+
+For all available options, see the docstring in [core.clj](src/fzf/core.clj).
+
+For detailed usage examples, including demonstrations of various binding options, see [src/fzf/examples.clj](src/fzf/examples.clj).
 
 ### Note on REPL-usage
 

@@ -24,6 +24,30 @@
 (s/def :fzf/case-insensitive boolean?)
 (s/def :fzf/exact boolean?)
 (s/def :fzf/throw boolean?)
+(s/def :fzf/select-1 boolean?)
+(s/def :fzf/query string?)
+
+(s/def :fzf/binding-handler-fn (s/fspec :args (s/cat :query string?) :ret (s/coll-of string?)))
+(s/def :fzf/bbnc-reload-fn fn?)  ;; For in-process reload via bbnc, used within command-bindings
+
+(s/def :fzf/action-name string?)      ;; e.g., "reload", "execute", "change-prompt"
+(s/def :fzf/command-string string?)   ;; For execute(:command-string "...")
+(s/def :fzf/handler-fn any?)          ;; Clojure form or string for the handler function. Receives lines from {+f} as a vector of strings.
+(s/def :fzf/simple-arg string?)       ;; For actions like change-prompt(:simple-arg "foo")
+(s/def :fzf/action-map
+  (s/and
+   (s/keys :req-un [:fzf/action-name]
+           :opt-un [:fzf/command-string :fzf/handler-fn :fzf/simple-arg :fzf/bbnc-reload-fn])
+   ;; Must have at most one of :command-string, :handler-fn, :simple-arg, :bbnc-reload-fn
+   #(<= (count (filter % [:command-string :handler-fn :simple-arg :bbnc-reload-fn])) 1)
+   ;; If :fzf/bbnc-reload-fn is present, :fzf/action-name must be "reload"
+   #(if (:bbnc-reload-fn %) (= (:action-name %) "reload") true)))
+
+(s/def :fzf/action-spec (s/or :simple-action-name string?
+                              :action-with-args :fzf/action-map))
+(s/def :fzf/command-binding-actions (s/coll-of :fzf/action-spec :kind vector? :min-count 1))
+(s/def :fzf/command-bindings (s/map-of string? :fzf/command-binding-actions))
+(s/def :fzf/additional-bindings (s/coll-of string?))
 
 (s/def :fzf/opts
   (s/and  (s/keys
@@ -40,7 +64,9 @@
                     :fzf/exact
                     :fzf/throw
                     :fzf/select-1
-                    :fzf/query])
+                    :fzf/query
+                    :fzf/command-bindings ; For fzf action(command) or action(arg) or action
+                    :fzf/additional-bindings]) ; For raw fzf binding strings
           #(not (and (:preview %) (:preview-fn %)))))
 
 (s/def :fzf/args sequential?)
@@ -51,9 +77,10 @@
    `opts`: Options map (all keys are optional)
    - dir: String indicating the startup-dir of the fzf-command
    - multi: Bool, toggles multi-select in fzf. If true, fzf returns a vector instead of string
-   - preview: String, preview-command for the currently selected item
-   - preview-fn: Function, preview function that will be called on the currently selected item.
-                 Its return value will be displayed in the preview window.
+   - preview: String, preview-command for the currently selected item (uses `{}` placeholder)
+   - preview-fn: Function, preview function that will be called with a vector of strings,
+                 where each string is a currently selected item (uses `{+}` placeholder). Its return value will be
+                 displayed in the preview window.
                  :preview-fn cannot be used in combination with :preview, i.e.
                  only one of them can be used for a single invocation of fzf.
    - reverse: Bool, reverse the order of the fzf input dialogue
@@ -68,6 +95,34 @@
    - throw: Bool, throw when no candidates were selected (default: return nil)
    - select-1: Bool, automatically select if only one match
    - query: String, start finder with the specified query
+
+   - command-bindings: Map for defining fzf bindings that mirror fzf's own binding syntax,
+                       including action composition (chaining actions with '+').
+                       Keys are fzf key-chords. Values are vectors of action specifications.
+                       Each action spec in the vector can be:
+                         - A string (for actions without arguments, e.g., `\"accept\"`).
+                         - A map (for actions with arguments):
+                           - `:action-name` (string, mandatory): The fzf action (e.g., \"reload\", \"execute\").
+                           - One of the following for the argument:
+                             - `:simple-arg` (string): For simple string arguments (e.g., `{:action-name \"change-prompt\" :simple-arg \"New>\"}`).
+                             - `:command-string` (string): A raw command string (e.g., `{:action-name \"execute\" :command-string \"less {}\"}`).
+                             - `:handler-fn` (a **pure, quoted** `'(fn [])`): A Clojure function.
+                               It receives one argument: a vector of strings (lines from fzf's `{+f}` file).
+                               It should return:
+                                 - A single string (for actions like `transform-header`).
+                                 - A collection of strings (for actions like `reload`).
+                               The returned value is printed to stdout (collections are newline-joined).
+                             - `:bbnc-reload-fn` (Clojure function): For `reload` actions that require in-process execution
+                               (access to the parent application's state). The function takes the current fzf query
+                               string and must return a collection of new candidate strings.
+                               Must be used with `:action-name \"reload\"`.
+                       Example:
+                       `{:command-bindings {\"ctrl-s\" [{:action-name \"change-prompt\" :simple-arg \"Saving...\"}
+                                                       {:action-name \"execute\" :handler-fn '(fn [lines] (spit \"/tmp/out.txt\" (clojure.string/join \"\\n\" lines)))}
+                                                       \"accept\"],
+                                             \"ctrl-r\" [{:action-name \"reload\" :bbnc-reload-fn (fn [q] (filter #(str/includes? % q) [\"item1\" \"item2\"]))}]}}`
+   - additional-bindings: A collection of raw fzf binding strings (e.g., `\"ctrl-x:accept+execute(ls)\"`).
+                          Useful for complex bindings or actions not covered by `:command-bindings`.
 
    `args`: Input arguments to fzf (optional, list of strings)
 
