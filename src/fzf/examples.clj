@@ -66,7 +66,7 @@
     (fzf/fzf {:header {:header-str "Press F6 to reload (bbnc)"}
               :command-bindings
               {"f6" [{:action-name "reload"
-                      :bbnc-reload-fn (fn [current-query]
+                      :bbnc-reload-fn (fn [current-query & selections]
                                         (swap! app-data conj (str "new-item-" (count @app-data)))
                                         (println (str "bbnc-reload-fn: Current query '" current-query "', new data: " @app-data))
                                         (filter #(str/includes? % current-query) @app-data))}]}}

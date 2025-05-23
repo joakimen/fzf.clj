@@ -91,9 +91,18 @@ Key features include:
       wrapped into an executable shell command (e.g., `'(fn [lines] ...)`).
       - **NOTE** The `:handler-fn` argument MUST be quoted (e.g., `'(fn [lines])`)
       as it's passed as a string for external execution, unlike `:bbnc-reload-fn`.
-    - `:bbnc-reload-fn`: A special case for `reload` actions, allowing
-      in-process Clojure functions for dynamic updates that can access
-      application state (e.g., `(fn [current-query] ...)`).
+    - `:bbnc-reload-fn`: A `(fn [query & selections])` special case for
+      `reload` actions, allowing in-process Clojure functions for dynamic
+      updates that can access application state. The function takes two
+      arguments:
+      1. The current fzf query string (from fzf's `{q}` placeholder).
+      2. The current fzf selection string (from fzf's `{+}` placeholder).
+         This string contains the line currently under the cursor.
+         If fzf is in multi-select mode (due to the `:multi true` option)
+         and multiple items have been explicitly selected (e.g., using TAB),
+         this string will contain all selected items, space-separated.
+      The function must return a collection of new candidate strings.
+      Example: `(fn [current-query & current-selection] ...)`
   - `:additional-bindings`: Use raw fzf binding strings for maximum
     flexibility (escape hatch).
   - This wrapper aims to support most of fzf's [available actions](https://man.archlinux.org/man/fzf.1.en#AVAILABLE_ACTIONS:).

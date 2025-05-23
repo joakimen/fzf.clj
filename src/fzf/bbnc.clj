@@ -20,10 +20,17 @@
 
             "binding"
             (let [binding-id (nth args 2)
-                  query-str (nth args 3 "")]
+                  query-str (nth args 3 "")
+                  ;; Collect all subsequent arguments as parts of the selection,
+                  ;; as {+} can expand to multiple space-separated items which become separate args.
+                  ;; TODO: Consider using {+f} instead to accomodate for space-separated items.
+                  selection-parts (if (> (count args) 4)
+                                    (subvec (vec args) 4)
+                                    [""]) ; Default to a vector with an empty string if no selection parts
+                  current-selection-str (clojure.string/join " " selection-parts)]
               (.println out binding-id)
-              (.println out query-str)))
-
+              (.println out query-str)
+              (.println out current-selection-str)))
           (.flush out)
           (loop []
             (when-let [lin (try (.readLine in)

@@ -23,7 +23,9 @@
                  (str port)
                  "binding"
                  binding-id
-                 "{q}"]))
+                 "{q}"
+                 ;; current selection(s)
+                 "{+}"]))
 
 (defn build-babashka-eval-string [handler-fn-form]
   (let [;; Ensure handler-fn-form is a Clojure form (symbol, list, etc.)
@@ -194,9 +196,10 @@
                   (when binding-handlers
                     (let [binding-id (.readLine in)
                           query-str (.readLine in)
+                          current-selection-str (.readLine in)
                           handler-fn (get binding-handlers binding-id)]
                       (when handler-fn
-                        (let [new-candidates (handler-fn query-str)
+                        (let [new-candidates (handler-fn query-str current-selection-str)
                               response (str/join "\n" new-candidates)]
                           (.println out ^String response))))))
                 (.flush out)))

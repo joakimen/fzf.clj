@@ -27,7 +27,7 @@
 (s/def :fzf/select-1 boolean?)
 (s/def :fzf/query string?)
 
-(s/def :fzf/binding-handler-fn (s/fspec :args (s/cat :query string?) :ret (s/coll-of string?)))
+(s/def :fzf/binding-handler-fn (s/fspec :args (s/cat :query string? :current-selection string?) :ret (s/coll-of string?)))
 (s/def :fzf/bbnc-reload-fn fn?)  ;; For in-process reload via bbnc, used within command-bindings
 
 (s/def :fzf/action-name string?)      ;; e.g., "reload", "execute", "change-prompt"
@@ -113,8 +113,14 @@
                                  - A collection of strings (for actions like `reload`).
                                The returned value is printed to stdout (collections are newline-joined).
                              - `:bbnc-reload-fn` (Clojure function): For `reload` actions that require in-process execution
-                               (access to the parent application's state). The function takes the current fzf query
-                               string and must return a collection of new candidate strings.
+                               (access to the parent application's state). The function takes:
+                                 1. The current fzf query string (from fzf's `{q}` placeholder).
+                                 2. The current fzf selection string (from fzf's `{+}` placeholder).
+                                    This string contains the line currently under the cursor.
+                                    If fzf is in multi-select mode (due to the `:multi true` option)
+                                    and multiple items have been explicitly selected (e.g., using TAB),
+                                    this string will contain all selected items, space-separated.
+                               And must return a collection of new candidate strings.
                                Must be used with `:action-name \"reload\"`.
                        Example:
                        `{:command-bindings {\"ctrl-s\" [{:action-name \"change-prompt\" :simple-arg \"Saving...\"}
