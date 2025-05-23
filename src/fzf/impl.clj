@@ -1,14 +1,23 @@
 (ns fzf.impl
   "Implementation of fzf-wrapper"
-  (:require [babashka.fs :as fs]
-            [babashka.process :as p]
-            [clojure.string :as str])
-  (:import (java.io BufferedInputStream BufferedOutputStream BufferedReader ByteArrayOutputStream Closeable
-                    InputStreamReader PrintWriter)
-           (java.net InetSocketAddress ServerSocket Socket)
-           (java.nio.charset StandardCharsets)))
+  (:require
+   [babashka.fs :as fs]
+   [babashka.process :as p]
+   [clojure.java.io :as io]
+   [clojure.string :as str])
+  (:import
+   (java.io
+    BufferedInputStream
+    BufferedOutputStream
+    BufferedReader
+    ByteArrayOutputStream
+    Closeable
+    InputStreamReader
+    PrintWriter)
+   (java.net InetSocketAddress ServerSocket Socket)
+   (java.nio.charset StandardCharsets)))
 
-(defonce bbnc-script-content (slurp "src/fzf/bbnc.clj"))
+(defonce bbnc-script-content (slurp (io/resource "fzf/bbnc.clj")))
 
 (defn bbnc-preview-command [bbnc-script-path-str port]
   (str/join " " ["bb"
