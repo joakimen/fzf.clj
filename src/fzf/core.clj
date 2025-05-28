@@ -28,7 +28,7 @@
 (s/def :fzf/query string?)
 
 (s/def :fzf/binding-handler-fn (s/fspec :args (s/cat :query string? :current-selection string?) :ret (s/coll-of string?)))
-(s/def :fzf/bbnc-reload-fn fn?)  ;; For in-process reload via bbnc, used within command-bindings
+(s/def :fzf/in-process-fn fn?)  ;; For in-process reload via bbnc, used within command-bindings
 
 (s/def :fzf/action-name string?)      ;; e.g., "reload", "execute", "change-prompt"
 (s/def :fzf/command-string string?)   ;; For execute(:command-string "...")
@@ -37,11 +37,13 @@
 (s/def :fzf/action-map
   (s/and
    (s/keys :req-un [:fzf/action-name]
-           :opt-un [:fzf/command-string :fzf/handler-fn :fzf/simple-arg :fzf/bbnc-reload-fn])
-   ;; Must have at most one of :command-string, :handler-fn, :simple-arg, :bbnc-reload-fn
-   #(<= (count (filter % [:command-string :handler-fn :simple-arg :bbnc-reload-fn])) 1)
-   ;; If :fzf/bbnc-reload-fn is present, :fzf/action-name must be "reload"
-   #(if (:bbnc-reload-fn %) (= (:action-name %) "reload") true)))
+           :opt-un [:fzf/command-string :fzf/handler-fn :fzf/simple-arg :fzf/in-process-fn])
+   ;; Must have at most one of :command-string, :handler-fn, :simple-arg, :in-process-fn
+   #(<= (count (filter % [:command-string :handler-fn :simple-arg :in-process-fn])) 1)
+   ;; TODO: can probably extend to anythign else that takes an `external command` (see fzf man page)
+   ;; If :fzf/in-process-fn is present, :fzf/action-name must be "reload", "execute" or "execute-silent"
+   #(if (:in-process-fn %)
+      (#{"reload" "execute" "execute-silent"} (:action-name %)) true)))
 
 (s/def :fzf/action-spec (s/or :simple-action-name string?
                               :action-with-args :fzf/action-map))
@@ -112,7 +114,7 @@
                                  - A single string (for actions like `transform-header`).
                                  - A collection of strings (for actions like `reload`).
                                The returned value is printed to stdout (collections are newline-joined).
-                             - `:bbnc-reload-fn` (Clojure function): For `reload` actions that require in-process execution
+                             - `:in-process-fn` (Clojure function): For `reload` actions that require in-process execution
                                (access to the parent application's state). The function takes:
                                  1. The current fzf query string (from fzf's `{q}` placeholder).
                                  2. The current fzf selection string (from fzf's `{+}` placeholder).
@@ -126,7 +128,7 @@
                        `{:command-bindings {\"ctrl-s\" [{:action-name \"change-prompt\" :simple-arg \"Saving...\"}
                                                        {:action-name \"execute\" :handler-fn '(fn [lines] (spit \"/tmp/out.txt\" (clojure.string/join \"\\n\" lines)))}
                                                        \"accept\"],
-                                             \"ctrl-r\" [{:action-name \"reload\" :bbnc-reload-fn (fn [q] (filter #(str/includes? % q) [\"item1\" \"item2\"]))}]}}`
+                                             \"ctrl-r\" [{:action-name \"reload\" :in-process-fn (fn [q] (filter #(str/includes? % q) [\"item1\" \"item2\"]))}]}}`
    - additional-bindings: A collection of raw fzf binding strings (e.g., `\"ctrl-x:accept+execute(ls)\"`).
                           Useful for complex bindings or actions not covered by `:command-bindings`.
 

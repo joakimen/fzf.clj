@@ -90,11 +90,11 @@ Key features include:
     - `:handler-fn`: For actions that execute a Clojure function, which is
       wrapped into an executable shell command (e.g., `'(fn [lines] ...)`).
       - **NOTE** The `:handler-fn` argument MUST be quoted (e.g., `'(fn [lines])`)
-      as it's passed as a string for external execution, unlike `:bbnc-reload-fn`.
-    - `:bbnc-reload-fn`: A `(fn [query & selections])` special case for
-      `reload` actions, allowing in-process Clojure functions for dynamic
-      updates that can access application state. The function takes two
-      arguments:
+      as it's passed as a string for external execution, unlike `:in-process-fn`.
+    - `:in-process-fn`: A `(fn [query & selections])` special case for
+      `reload` and `execute` actions, allowing in-process Clojure functions
+      for dynamic updates that can access application state. The function takes
+      two arguments:
       1. The current fzf query string (from fzf's `{q}` placeholder).
       2. The current fzf selection string (from fzf's `{+}` placeholder).
          This string contains the line currently under the cursor.

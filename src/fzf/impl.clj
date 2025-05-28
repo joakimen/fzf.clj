@@ -220,17 +220,17 @@
     ss))
 
 (defn transform-bindings-for-bbnc-registration
-  "Processes command-bindings to register :bbnc-reload-fn handlers
+  "Processes command-bindings to register :in-process-fn handlers
   and replace them with a temporary :__bbnc_id__."
   [command-bindings register-bbnc-handler-fn]
   (reduce-kv
     (fn [m key-chord actions-vec]
       (assoc m key-chord
              (mapv (fn [action-spec]
-                     (if (and (map? action-spec) (:bbnc-reload-fn action-spec))
-                       (let [handler (:bbnc-reload-fn action-spec)
+                     (if (and (map? action-spec) (:in-process-fn action-spec))
+                       (let [handler (:in-process-fn action-spec)
                              unique-id (register-bbnc-handler-fn handler)]
-                         (assoc (dissoc action-spec :bbnc-reload-fn) :__bbnc_id__ unique-id))
+                         (assoc (dissoc action-spec :in-process-fn) :__bbnc_id__ unique-id))
                        action-spec))
                    actions-vec)))
     {}
@@ -255,7 +255,7 @@
 
 (defn prepare-bbnc-integration
   "Sets up bbnc handlers and performs the first pass of options transformation
-  for :bbnc-reload-fn.
+  for :in-process-fn.
   Returns a map containing :opts-with-temp-ids (options with temporary bbnc IDs)
   and :final-binding-handlers (map of registered bbnc handlers)."
   [original-opts]

@@ -31,7 +31,7 @@
     (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload" :command-string "ls -l"}]}}))
     (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "execute" :handler-fn 'user/my-fn}]}}))
     (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "change-prompt" :simple-arg "New>"}]}}))
-    (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload" :bbnc-reload-fn (fn [_] ["item"])}]}}))
+    (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload" :in-process-fn (fn [_] ["item"])}]}}))
     (t/is (s/valid? :fzf/opts {:command-bindings {"ctrl-x" ["accept" {:action-name "reload" :command-string "ls"}]}}))
     (t/is (s/valid? :fzf/opts {:command-bindings {}})))
 
@@ -43,10 +43,10 @@
     (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload"
                                                                   :command-string "ls"
                                                                   :simple-arg "foo"}]}}))) ; Multiple arg types
-    (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "execute"
-                                                                  :bbnc-reload-fn (fn [_] ["item"])}]}}))) ; :bbnc-reload-fn with non-reload action
+    (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "unbind"
+                                                                  :in-process-fn (fn [_] ["item"])}]}}))) ; :in-process-fn with non-reload/execute action
     (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [123]}}))) ; Action spec not string or map
-    (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload" :bbnc-reload-fn "not-a-fn"}]}}))))) ; :bbnc-reload-fn not a fn
+    (t/is (not (s/valid? :fzf/opts {:command-bindings {"ctrl-x" [{:action-name "reload" :in-process-fn "not-a-fn"}]}}))))) ; :in-process-fn not a fn
 
 (t/deftest fail-with-exception
   (t/testing "Using both :preview and :preview-fn causes exception"
@@ -62,6 +62,6 @@
     (t/is (thrown? AssertionError (fzf/fzf {:command-bindings {"key" [{:action-name "reload"
                                                                        :command-string "ls"
                                                                        :simple-arg "foo"}]}} ["a"])))
-    (t/is (thrown? AssertionError (fzf/fzf {:command-bindings {"key" [{:action-name "execute"
-                                                                       :bbnc-reload-fn (fn [_] [])}]}} ["a"])))
+    (t/is (thrown? AssertionError (fzf/fzf {:command-bindings {"key" [{:action-name "unbind"
+                                                                       :in-process-fn (fn [_] [])}]}} ["a"])))
     (t/is (not (s/valid? :fzf/args {:a 1})))))
