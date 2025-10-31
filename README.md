@@ -73,7 +73,46 @@ Threading w/options
 
 [fzf](https://github.com/junegunn/fzf) supports a slew of options, so I have only included the ones I frequently use myself.
 
-For all available options, see [core.clj](src/fzf/core.clj)
+Key features include:
+- The `:preview` string argument or a `:preview-fn (fn [selections])` that
+  receives a vector of all selected items (via fzf's `{+}`).
+- A key binding system offering:
+  - `:command-bindings`: Define complex, multi-step actions triggered by
+    key-chords. fzf actions generally take either a simple string argument
+    (e.g., `change-prompt(...)`, `change-header(...)`) or an external
+    command (e.g., `execute(...)`, `reload(...)`, `preview(...)`,
+    `transform(...)`). You can specify these arguments in your action maps
+    using:
+    - `:simple-arg`: For actions that take a direct string value (e.g.,
+      `{:action-name "change-prompt" :simple-arg "New>"}`).
+    - `:command-string`: For actions that execute a raw shell command (e.g.,
+      `{:action-name "execute" :command-string "less {}"}`).
+    - `:handler-fn`: For actions that execute a Clojure function, which is
+      wrapped into an executable shell command (e.g., `'(fn [lines] ...)`).
+      - **NOTE** The `:handler-fn` argument MUST be quoted (e.g., `'(fn [lines])`)
+      as it's passed as a string for external execution, unlike `:in-process-fn`.
+    - `:in-process-fn`: A `(fn [query & selections])` special case for
+      `reload` and `execute` actions, allowing in-process Clojure functions
+      for dynamic updates that can access application state. The function takes
+      two arguments:
+      1. The current fzf query string (from fzf's `{q}` placeholder).
+      2. The current fzf selection string (from fzf's `{+}` placeholder).
+         This string contains the line currently under the cursor.
+         If fzf is in multi-select mode (due to the `:multi true` option)
+         and multiple items have been explicitly selected (e.g., using TAB),
+         this string will contain all selected items, space-separated.
+      The function must return a collection of new candidate strings.
+      Example: `(fn [current-query & current-selection] ...)`
+  - `:additional-bindings`: Use raw fzf binding strings for maximum
+    flexibility (escape hatch).
+  - This wrapper aims to support most of fzf's [available actions](https://man.archlinux.org/man/fzf.1.en#AVAILABLE_ACTIONS:).
+    Consult the fzf documentation to determine if a specific action expects a
+    simple string (typically use `:simple-arg`) or an external command
+    (typically use `:command-string` or `:handler-fn`).
+
+For all available options, see the docstring in [core.clj](src/fzf/core.clj).
+
+For detailed usage examples, including demonstrations of various binding options, see [src/fzf/examples.clj](src/fzf/examples.clj).
 
 ### Note on REPL-usage
 
